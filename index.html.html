@@ -1,0 +1,927 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Element Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080d17; --panel:#101a2c; --panel2:#16233a; --line:#243a56;
+    --flame:#ff8c42; --teal:#3ee6c4; --violet:#9d8cff; --gold:#ffd166;
+    --text:#eef4f5; --dim:#7f93ab; --bad:#ff5d6c; --good:#4fd18c;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 10% -10%, #14304a 0%, transparent 55%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, #2a1f4a 0%, transparent 50%),
+      radial-gradient(ellipse 800px 600px at 50% 120%, #12301f 0%, transparent 55%),
+      var(--bg);
+    color:var(--text); font-family:'Space Grotesk',sans-serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:0 14px 40px; overflow-x:hidden;
+  }
+  .wrap{width:100%; max-width:460px;}
+
+  /* ---- Hero ---- */
+  .hero{
+    position:relative; margin:0 -14px 18px; padding:34px 24px 26px; text-align:center;
+    background:linear-gradient(180deg, rgba(62,230,196,.10), transparent 70%);
+    border-bottom:1px solid var(--line); overflow:hidden;
+  }
+  .hero::before{
+    content:"H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar";
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-size:2.6rem; letter-spacing:10px;
+    color:var(--teal); opacity:.05; white-space:nowrap; pointer-events:none;
+  }
+  .hero h1{
+    position:relative; font-size:2.1rem; margin:0 0 4px; letter-spacing:.2px; font-weight:700;
+    background:linear-gradient(90deg,var(--teal),var(--violet));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero .tag{position:relative; color:var(--dim); font-size:.9rem; margin:0;}
+  .userchip{
+    position:relative; margin-top:16px; display:inline-flex; align-items:center; gap:8px;
+    background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:999px;
+    padding:6px 14px 6px 8px; font-size:.85rem;
+  }
+  .userchip .avatar{
+    width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--teal),var(--violet)); color:#06131c; font-weight:700; font-size:.8rem;
+    overflow:hidden; flex-shrink:0;
+  }
+  .userchip .coinchip{color:var(--gold); font-family:'JetBrains Mono',monospace; font-size:.8rem;}
+  .userchip .signout{color:var(--dim); cursor:pointer; margin-left:4px; font-size:.8rem; text-decoration:underline;}
+
+  .photo-picker{
+    width:76px; height:76px; border-radius:50%; margin:4px auto 14px; position:relative;
+    background:var(--panel2); border:2px dashed var(--line); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .photo-picker:hover{border-color:var(--teal);}
+  .photo-picker img{width:100%; height:100%; object-fit:cover;}
+  .photo-picker #photoPlus{font-size:1.8rem; color:var(--dim); font-weight:300;}
+  .end-coins{text-align:center; color:var(--gold); font-family:'JetBrains Mono',monospace; font-size:.9rem; margin-bottom:14px; min-height:18px;}
+
+  .panel{
+    background:linear-gradient(180deg, var(--panel2), var(--panel));
+    border:1px solid var(--line); border-radius:18px; padding:20px; margin-bottom:14px;
+    box-shadow:0 12px 30px -14px rgba(0,0,0,.6);
+  }
+
+  /* ---- Menu ---- */
+  .step-label{font-size:.78rem; color:var(--dim); margin-bottom:10px;}
+  .choice-row{display:flex; gap:10px; margin-bottom:18px;}
+  .choice{
+    flex:1; background:var(--panel2); border:1.5px solid var(--line); border-radius:14px;
+    padding:14px 10px; text-align:center; cursor:pointer; transition:.15s border-color, .15s transform;
+  }
+  .choice.selected{border-color:var(--teal); box-shadow:0 0 0 1px var(--teal) inset;}
+  .choice:active{transform:scale(.97);}
+  .choice .num{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:1.3rem; color:var(--teal);}
+  .choice .lbl{font-size:.85rem; margin-top:2px;}
+
+  .game-pick{
+    display:block; width:100%; text-align:left; background:var(--panel2);
+    border:1.5px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px;
+    cursor:pointer; color:var(--text); transition:.15s transform, .15s border-color;
+  }
+  .game-pick:active{transform:scale(.98);}
+  .game-pick:hover{border-color:var(--flame);}
+  .game-pick .gtitle{font-weight:700; font-size:1.05rem; display:flex; align-items:center; gap:8px;}
+  .game-pick .gdesc{color:var(--dim); font-size:.82rem; margin-top:4px; line-height:1.4;}
+
+  .play-btn{
+    display:block; width:100%; padding:15px; border:none; border-radius:14px;
+    background:linear-gradient(135deg,var(--flame),#e8632a); color:#2a1000; font-weight:700;
+    font-size:1.05rem; cursor:pointer; margin-top:4px;
+  }
+  .play-btn:disabled{opacity:.4;}
+
+  /* ---- HUD ---- */
+  .hud{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-family:'JetBrains Mono',monospace; font-size:.85rem;}
+  .hud .lives{color:var(--flame);}
+  .hud .scoreval{color:var(--gold);}
+  .backbtn{background:none; border:none; color:var(--dim); font-size:1.3rem; cursor:pointer; padding:0 6px;}
+
+  /* ---- Memory Match ---- */
+  #matchGrid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+  }
+  .card{
+    aspect-ratio:1; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:var(--panel2); border:1.5px solid var(--line); cursor:pointer; user-select:none;
+    font-weight:700; text-align:center; padding:4px; font-size:.8rem; position:relative;
+    transition:transform .2s, background .2s, border-color .2s;
+  }
+  .card .face{display:none;}
+  .card.flipped .face, .card.matched .face{display:block;}
+  .card.flipped, .card.matched{background:#173347; border-color:var(--teal);}
+  .card.symbol .face{font-family:'JetBrains Mono',monospace; font-size:1.3rem; color:var(--teal);}
+  .card.name .face{font-size:.72rem; color:var(--text); line-height:1.15;}
+  .card.matched{opacity:.45; border-color:var(--good); cursor:default;}
+  .card.shake{animation:shake .35s;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);}
+  }
+
+  /* ---- Symbol Drop ---- */
+  #dropArena{
+    position:relative; height:340px; background:#081420; border-radius:14px;
+    border:1.5px solid var(--line); overflow:hidden; margin-bottom:14px;
+  }
+  .falling{
+    position:absolute; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:1.6rem;
+    background:#173347; border:1.5px solid var(--teal); color:var(--teal);
+    border-radius:10px; padding:8px 14px; top:-50px;
+  }
+  .groundline{
+    position:absolute; bottom:0; left:0; right:0; height:3px; background:var(--flame); opacity:.6;
+  }
+  #dropOptions{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .dopt{
+    padding:14px 6px; border-radius:12px; border:1.5px solid var(--line); background:var(--panel2);
+    color:var(--text); font-size:.95rem; cursor:pointer; text-align:center;
+  }
+  .dopt:active{transform:scale(.97);}
+  .dopt.correct{background:#173a2a; border-color:var(--good);}
+  .dopt.wrong{background:#3a1720; border-color:var(--bad);}
+
+  /* ---- End ---- */
+  .end-emoji{font-size:2.6rem; text-align:center; margin-bottom:4px;}
+  .end-title{text-align:center; font-size:1.3rem; font-weight:700; margin-bottom:2px;}
+  .end-score{text-align:center; font-family:'JetBrains Mono',monospace; font-size:2.2rem; color:var(--gold); margin:10px 0 4px;}
+  .end-sub{text-align:center; color:var(--dim); font-size:.85rem; margin-bottom:16px;}
+
+  .hidden{display:none !important;}
+  .rowbtns{display:flex; gap:10px;}
+  .rowbtns .play-btn{margin-top:0;}
+  .secondary{background:var(--panel2); color:var(--text); border:1.5px solid var(--line);}
+
+  /* ---- Login ---- */
+  .login-panel{text-align:center;}
+  .login-panel .flaskbig{font-size:2.4rem; margin-bottom:6px;}
+  .login-panel h2{margin:0 0 6px; font-size:1.25rem;}
+  .login-panel p{color:var(--dim); font-size:.85rem; margin:0 0 18px;}
+  .name-input{
+    width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--line);
+    background:var(--panel2); color:var(--text); font-family:'Space Grotesk',sans-serif;
+    font-size:1rem; margin-bottom:10px; text-align:center;
+  }
+  .name-input:focus{outline:none; border-color:var(--teal);}
+  .avatar-row{display:flex; justify-content:center; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .avatar-pick{
+    width:42px; height:42px; border-radius:50%; cursor:pointer;
+    border:3px solid var(--line); transition:.15s transform, .15s border-color;
+  }
+  .avatar-pick.selected{border-color:#fff; transform:scale(1.08);}
+  .keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:6px;}
+  .keypad button{
+    padding:16px 0; border-radius:12px; border:1.5px solid var(--line); background:var(--panel2);
+    color:var(--text); font-size:1.2rem; font-family:'JetBrains Mono',monospace; cursor:pointer;
+  }
+  .keypad button.keyaction{color:var(--dim); font-family:'Space Grotesk',sans-serif; font-size:1rem;}
+  .keypad button:active{background:#1c3450;}
+  .switch-link{color:var(--dim); font-size:.8rem; margin-top:14px; cursor:pointer; text-decoration:underline;}
+
+  /* ---- Stats ---- */
+  .stats-row{display:flex; gap:8px; margin-bottom:16px;}
+  .stat{
+    flex:1; background:var(--panel2); border:1px solid var(--line); border-radius:12px;
+    padding:10px 6px; text-align:center;
+  }
+  .stat .sval{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--gold); font-size:1.15rem;}
+  .stat .slbl{font-size:.68rem; color:var(--dim); margin-top:2px;}
+
+  /* ---- Choice / game-pick refinement ---- */
+  .choice{position:relative; overflow:hidden;}
+  .choice.selected::after{
+    content:"✓"; position:absolute; top:6px; right:8px; color:var(--teal); font-size:.8rem; font-weight:700;
+  }
+  .game-pick{position:relative;}
+  .game-pick.active-game{border-color:var(--teal); background:#122a3f; box-shadow:0 0 0 1px var(--teal) inset;}
+  .game-pick .gtitle{font-family:'Space Grotesk',sans-serif;}
+  .best-tag{
+    display:inline-block; margin-top:8px; font-size:.72rem; color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>⚗️ Element Lab</h1>
+    <p class="tag">Learn element names & symbols by playing, not quizzing</p>
+    <div class="userchip hidden" id="userChip">
+      <span class="avatar" id="userAvatar">A</span>
+      <span id="userName">—</span>
+      <span class="coinchip">🪙 <b id="chipCoins">0</b></span>
+      <span class="signout" onclick="signOut()">switch</span>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginScreen" class="panel login-panel">
+    <div class="flaskbig">🧪</div>
+    <h2>Who's experimenting today?</h2>
+    <p>Saved worldwide with a PIN — play on any device.</p>
+    <input type="text" id="nameInput" class="name-input" placeholder="Enter your name" maxlength="14">
+    <div class="photo-picker" id="photoPicker" onclick="document.getElementById('photoInput').click()">
+      <img id="photoPreview" class="hidden">
+      <span id="photoPlus">+</span>
+    </div>
+    <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="onPhotoChosen(event)">
+    <div class="avatar-row" id="avatarRow"></div>
+    <button class="play-btn" onclick="createAccount()">Enter the Lab</button>
+    <div class="switch-link" id="pickExistingLink" onclick="showAccountList()">Pick a saved account instead</div>
+  </div>
+
+  <!-- EXISTING ACCOUNTS -->
+  <div id="accountListScreen" class="panel hidden">
+    <div class="step-label">FIND YOUR ACCOUNT</div>
+    <input type="text" id="findInput" class="name-input" placeholder="Type your name" oninput="filterAccounts()">
+    <div id="accountList"></div>
+    <div class="switch-link" onclick="showLogin()">＋ Create a new account</div>
+  </div>
+
+  <!-- PIN ENTRY -->
+  <div id="pinScreen" class="panel hidden login-panel">
+    <div class="flaskbig">🔒</div>
+    <h2 id="pinTitle">Enter PIN</h2>
+    <div style="font-size:1.4rem; letter-spacing:6px; margin:14px 0;" id="pinDots">○ ○ ○ ○</div>
+    <div style="color:var(--bad); font-size:.8rem; min-height:18px;" id="pinError"></div>
+    <div class="keypad">
+      <button onclick="pressPin('1')">1</button><button onclick="pressPin('2')">2</button><button onclick="pressPin('3')">3</button>
+      <button onclick="pressPin('4')">4</button><button onclick="pressPin('5')">5</button><button onclick="pressPin('6')">6</button>
+      <button onclick="pressPin('7')">7</button><button onclick="pressPin('8')">8</button><button onclick="pressPin('9')">9</button>
+      <button onclick="showLogin()" class="keyaction">←</button><button onclick="pressPin('0')">0</button><button onclick="pinBackspace()" class="keyaction">⌫</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="leaderboardScreen" class="panel hidden">
+    <div class="hud"><button class="backbtn" onclick="toMenu()">←</button><span>🏆 Leaderboard</span><span></span></div>
+    <div id="leaderboardList"></div>
+  </div>
+
+  <!-- MENU -->
+  <div id="menu" class="hidden">
+    <div class="panel">
+      <div class="stats-row" id="statsRow"></div>
+      <button class="play-btn secondary" style="margin-bottom:14px;" onclick="openLeaderboard()">🏆 View Leaderboard</button>
+      <div class="step-label">1 · CHOOSE YOUR SET</div>
+      <div class="choice-row">
+        <div class="choice selected" id="rangeFirst20" onclick="setRange('first20')">
+          <div class="num">1–20</div>
+          <div class="lbl">First 20 elements</div>
+        </div>
+        <div class="choice" id="rangeAll" onclick="setRange('all')">
+          <div class="num">1–118</div>
+          <div class="lbl">All elements</div>
+        </div>
+      </div>
+
+      <div class="step-label">2 · CHOOSE A GAME</div>
+      <div class="game-pick selected-game" id="pickMatch" onclick="setGame('match')">
+        <div class="gtitle">🧩 Memory Match</div>
+        <div class="gdesc">Flip tiles to pair each symbol with its name. Fewer moves = higher score.</div>
+      </div>
+      <div class="game-pick" id="pickDrop" onclick="setGame('drop')">
+        <div class="gtitle">☄️ Symbol Drop</div>
+        <div class="gdesc">Symbols fall from the top — tap the matching name before they hit the ground.</div>
+      </div>
+
+      <button class="play-btn" onclick="launch()">Start Playing</button>
+    </div>
+  </div>
+
+  <!-- MATCH GAME -->
+  <div id="matchScreen" class="hidden">
+    <div class="hud">
+      <button class="backbtn" onclick="toMenu()">←</button>
+      <span>Moves: <span class="scoreval" id="matchMoves">0</span></span>
+      <span>Matched: <span class="scoreval" id="matchFound">0</span>/<span id="matchTotal">8</span></span>
+    </div>
+    <div class="panel">
+      <div id="matchGrid"></div>
+    </div>
+  </div>
+
+  <!-- DROP GAME -->
+  <div id="dropScreen" class="hidden">
+    <div class="hud">
+      <button class="backbtn" onclick="toMenu()">←</button>
+      <span class="lives" id="dropLives">❤️❤️❤️</span>
+      <span>Score: <span class="scoreval" id="dropScore">0</span></span>
+    </div>
+    <div id="dropArena"><div class="groundline"></div></div>
+    <div id="dropOptions"></div>
+  </div>
+
+  <!-- END -->
+  <div id="endScreen" class="hidden panel">
+    <div class="end-emoji" id="endEmoji">🏆</div>
+    <div class="end-title" id="endTitle">Nice work!</div>
+    <div class="end-score" id="endScore">0</div>
+    <div class="end-sub" id="endSub"></div>
+    <div class="end-coins" id="endCoins"></div>
+    <div class="rowbtns">
+      <button class="play-btn secondary" onclick="toMenu()">Menu</button>
+      <button class="play-btn" onclick="replay()">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Free Firebase SDK (compat build) — provides the shared worldwide database.
+     See the FIREBASE_CONFIG comment further down for setup steps. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+const ELEMENTS = [
+[1,"H","Hydrogen"],[2,"He","Helium"],[3,"Li","Lithium"],[4,"Be","Beryllium"],[5,"B","Boron"],
+[6,"C","Carbon"],[7,"N","Nitrogen"],[8,"O","Oxygen"],[9,"F","Fluorine"],[10,"Ne","Neon"],
+[11,"Na","Sodium"],[12,"Mg","Magnesium"],[13,"Al","Aluminum"],[14,"Si","Silicon"],[15,"P","Phosphorus"],
+[16,"S","Sulfur"],[17,"Cl","Chlorine"],[18,"Ar","Argon"],[19,"K","Potassium"],[20,"Ca","Calcium"],
+[21,"Sc","Scandium"],[22,"Ti","Titanium"],[23,"V","Vanadium"],[24,"Cr","Chromium"],[25,"Mn","Manganese"],
+[26,"Fe","Iron"],[27,"Co","Cobalt"],[28,"Ni","Nickel"],[29,"Cu","Copper"],[30,"Zn","Zinc"],
+[31,"Ga","Gallium"],[32,"Ge","Germanium"],[33,"As","Arsenic"],[34,"Se","Selenium"],[35,"Br","Bromine"],
+[36,"Kr","Krypton"],[37,"Rb","Rubidium"],[38,"Sr","Strontium"],[39,"Y","Yttrium"],[40,"Zr","Zirconium"],
+[41,"Nb","Niobium"],[42,"Mo","Molybdenum"],[43,"Tc","Technetium"],[44,"Ru","Ruthenium"],[45,"Rh","Rhodium"],
+[46,"Pd","Palladium"],[47,"Ag","Silver"],[48,"Cd","Cadmium"],[49,"In","Indium"],[50,"Sn","Tin"],
+[51,"Sb","Antimony"],[52,"Te","Tellurium"],[53,"I","Iodine"],[54,"Xe","Xenon"],[55,"Cs","Cesium"],
+[56,"Ba","Barium"],[57,"La","Lanthanum"],[58,"Ce","Cerium"],[59,"Pr","Praseodymium"],[60,"Nd","Neodymium"],
+[61,"Pm","Promethium"],[62,"Sm","Samarium"],[63,"Eu","Europium"],[64,"Gd","Gadolinium"],[65,"Tb","Terbium"],
+[66,"Dy","Dysprosium"],[67,"Ho","Holmium"],[68,"Er","Erbium"],[69,"Tm","Thulium"],[70,"Yb","Ytterbium"],
+[71,"Lu","Lutetium"],[72,"Hf","Hafnium"],[73,"Ta","Tantalum"],[74,"W","Tungsten"],[75,"Re","Rhenium"],
+[76,"Os","Osmium"],[77,"Ir","Iridium"],[78,"Pt","Platinum"],[79,"Au","Gold"],[80,"Hg","Mercury"],
+[81,"Tl","Thallium"],[82,"Pb","Lead"],[83,"Bi","Bismuth"],[84,"Po","Polonium"],[85,"At","Astatine"],
+[86,"Rn","Radon"],[87,"Fr","Francium"],[88,"Ra","Radium"],[89,"Ac","Actinium"],[90,"Th","Thorium"],
+[91,"Pa","Protactinium"],[92,"U","Uranium"],[93,"Np","Neptunium"],[94,"Pu","Plutonium"],[95,"Am","Americium"],
+[96,"Cm","Curium"],[97,"Bk","Berkelium"],[98,"Cf","Californium"],[99,"Es","Einsteinium"],[100,"Fm","Fermium"],
+[101,"Md","Mendelevium"],[102,"No","Nobelium"],[103,"Lr","Lawrencium"],[104,"Rf","Rutherfordium"],[105,"Db","Dubnium"],
+[106,"Sg","Seaborgium"],[107,"Bh","Bohrium"],[108,"Hs","Hassium"],[109,"Mt","Meitnerium"],[110,"Ds","Darmstadtium"],
+[111,"Rg","Roentgenium"],[112,"Cn","Copernicium"],[113,"Nh","Nihonium"],[114,"Fl","Flerovium"],[115,"Mc","Moscovium"],
+[116,"Lv","Livermorium"],[117,"Ts","Tennessine"],[118,"Og","Oganesson"]
+];
+
+let range = "first20";
+let game = "match";
+const COLORS = ["#ff8c42","#4fd1c5","#9d8cff","#ffd166","#4fd18c","#ff5d6c","#5da9ff","#e879c9"];
+let selectedColor = COLORS[0];
+let selectedPhotoData = null;   // compressed base64 data URL, or null
+let currentUser = null;         // display name (also the Firestore doc id, slugified)
+let pendingPin = "";
+let db = null;
+let dbReady = false;
+
+function slug(name){
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60) || 'player';
+}
+function accountRef(name){ return db.collection('accounts').doc(slug(name)); }
+
+function defaultStats(name){
+  return { name, pin:"", color:COLORS[0], photo:null, coins:0, matchBest:0, dropBest:0, gamesPlayed:0 };
+}
+
+/* ---- local cache: just speeds up "last used" auto-fill, never authoritative ---- */
+function rememberLastUser(name){ try{ localStorage.setItem('elementLabLastUser', name); }catch(e){} }
+function forgetLastUser(){ try{ localStorage.removeItem('elementLabLastUser'); }catch(e){} }
+function lastUser(){ try{ return localStorage.getItem('elementLabLastUser'); }catch(e){ return null; } }
+
+function initAvatarRow(){
+  const row = document.getElementById('avatarRow');
+  row.innerHTML = '';
+  COLORS.forEach(c=>{
+    const d = document.createElement('div');
+    d.className = 'avatar-pick' + (c===selectedColor && !selectedPhotoData ? ' selected' : '');
+    d.style.background = c;
+    d.onclick = () => { selectedColor = c; selectedPhotoData = null;
+      document.getElementById('photoPreview').classList.add('hidden');
+      document.getElementById('photoPlus').classList.remove('hidden');
+      initAvatarRow(); };
+    row.appendChild(d);
+  });
+}
+
+/* Resize/compress the chosen photo client-side into a small square JPEG data URL
+   (Firestore documents cap at ~1MiB, and a tiny avatar keeps reads/writes fast). */
+function onPhotoChosen(ev){
+  const file = ev.target.files && ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const SIZE = 128;
+      const canvas = document.createElement('canvas');
+      canvas.width = SIZE; canvas.height = SIZE;
+      const ctx = canvas.getContext('2d');
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
+      selectedPhotoData = canvas.toDataURL('image/jpeg', 0.82);
+      const prev = document.getElementById('photoPreview');
+      prev.src = selectedPhotoData;
+      prev.classList.remove('hidden');
+      document.getElementById('photoPlus').classList.add('hidden');
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showLogin(){
+  document.getElementById('accountListScreen').classList.add('hidden');
+  document.getElementById('pinScreen').classList.add('hidden');
+  document.getElementById('leaderboardScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  const last = lastUser();
+  if(last) document.getElementById('nameInput').value = last;
+  initAvatarRow();
+}
+
+async function showAccountList(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('accountListScreen').classList.remove('hidden');
+  document.getElementById('findInput').value = '';
+  document.getElementById('accountList').innerHTML = '<div class="gdesc" style="padding:8px 2px;">Type your name above to find your account.</div>';
+}
+
+let findTimer = null;
+function filterAccounts(){
+  clearTimeout(findTimer);
+  findTimer = setTimeout(async ()=>{
+    const q = document.getElementById('findInput').value.trim();
+    const list = document.getElementById('accountList');
+    if(!q){ list.innerHTML = '<div class="gdesc" style="padding:8px 2px;">Type your name above to find your account.</div>'; return; }
+    if(!dbReady){ list.innerHTML = '<div class="gdesc" style="padding:8px 2px;">Not connected yet — try again in a moment.</div>'; return; }
+    try{
+      const ref = await accountRef(q).get();
+      list.innerHTML = '';
+      if(ref.exists){
+        const stats = ref.data();
+        const row = document.createElement('div');
+        row.className = 'game-pick';
+        row.innerHTML = accountRowHTML(stats);
+        row.onclick = () => askPin(stats.name, stats, false);
+        list.appendChild(row);
+      } else {
+        list.innerHTML = '<div class="gdesc" style="padding:8px 2px;">No account with that exact name yet — you can create one.</div>';
+      }
+    }catch(e){
+      list.innerHTML = '<div class="gdesc" style="padding:8px 2px;">Could not search right now.</div>';
+    }
+  }, 350);
+}
+
+function avatarHTML(stats, size){
+  size = size || 24;
+  if(stats.photo) return `<img src="${stats.photo}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;vertical-align:middle;">`;
+  return `<span style="width:${size}px;height:${size}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;background:${stats.color||COLORS[0]};font-size:${size*0.5}px;font-weight:700;color:#06131c;">${(stats.name||'?').charAt(0).toUpperCase()}</span>`;
+}
+function accountRowHTML(stats){
+  return `<div class="gtitle">${avatarHTML(stats)} ${stats.name}</div>
+    <div class="gdesc">🪙 ${stats.coins||0} · Best Match: ${stats.matchBest||0} · Best Drop: ${stats.dropBest||0}</div>`;
+}
+
+function askPin(name, stats, isNew){
+  pendingPin = "";
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('accountListScreen').classList.add('hidden');
+  document.getElementById('pinScreen').classList.remove('hidden');
+  document.getElementById('pinTitle').textContent = isNew ? `Set a 4-digit PIN for ${name}` : `Enter PIN for ${name}`;
+  document.getElementById('pinDots').textContent = '○ ○ ○ ○';
+  document.getElementById('pinError').textContent = '';
+  document.getElementById('pinScreen').dataset.name = name;
+  document.getElementById('pinScreen').dataset.isnew = isNew ? "1" : "0";
+}
+
+function pressPin(d){
+  if(pendingPin.length >= 4) return;
+  pendingPin += d;
+  document.getElementById('pinDots').textContent = '● '.repeat(pendingPin.length) + '○ '.repeat(4-pendingPin.length);
+  if(pendingPin.length === 4) setTimeout(submitPin, 150);
+}
+function pinBackspace(){ pendingPin = pendingPin.slice(0,-1); document.getElementById('pinDots').textContent = '● '.repeat(pendingPin.length) + '○ '.repeat(4-pendingPin.length); }
+
+async function submitPin(){
+  const scr = document.getElementById('pinScreen');
+  const name = scr.dataset.name;
+  const isNew = scr.dataset.isnew === "1";
+  const err = document.getElementById('pinError');
+
+  if(!dbReady){ err.textContent = "Can't reach the database — check your Firebase config."; return; }
+
+  if(isNew){
+    const stats = defaultStats(name);
+    stats.pin = pendingPin;
+    stats.color = selectedColor;
+    stats.photo = selectedPhotoData;
+    try{
+      await accountRef(name).set(stats);
+      signIn(name, stats);
+    }catch(e){
+      err.textContent = 'Could not create account — ' + (e.message || 'try again.');
+    }
+  } else {
+    try{
+      const snap = await accountRef(name).get();
+      if(snap.exists && snap.data().pin === pendingPin){
+        signIn(name, snap.data());
+      } else {
+        err.textContent = 'Incorrect PIN, try again.';
+        pendingPin = '';
+        document.getElementById('pinDots').textContent = '○ ○ ○ ○';
+      }
+    }catch(e){
+      err.textContent = 'Could not check PIN — try again.';
+    }
+  }
+}
+
+async function createAccount(){
+  const input = document.getElementById('nameInput');
+  const name = (input.value || '').trim();
+  if(!name){ input.focus(); input.style.borderColor = 'var(--bad)'; return; }
+  if(!dbReady){ alert("Can't reach the database — check your Firebase config in the script."); return; }
+  try{
+    const snap = await accountRef(name).get();
+    if(snap.exists) askPin(name, snap.data(), false);
+    else askPin(name, {}, true);
+  }catch(e){
+    askPin(name, {}, true);
+  }
+}
+
+let liveStats = null;
+function signIn(name, stats){
+  currentUser = name;
+  liveStats = stats;
+  rememberLastUser(name);
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('accountListScreen').classList.add('hidden');
+  document.getElementById('pinScreen').classList.add('hidden');
+  updateUserChip();
+  toMenu();
+}
+
+function signOut(){
+  currentUser = null; liveStats = null;
+  forgetLastUser();
+  document.getElementById('userChip').classList.add('hidden');
+  ['menu','matchScreen','dropScreen','endScreen','leaderboardScreen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  showLogin();
+}
+
+function updateUserChip(){
+  const chip = document.getElementById('userChip');
+  if(!currentUser || !liveStats){ chip.classList.add('hidden'); return; }
+  const av = document.getElementById('userAvatar');
+  if(liveStats.photo){
+    av.innerHTML = `<img src="${liveStats.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    av.style.background = 'transparent';
+  } else {
+    av.innerHTML = '';
+    av.style.background = liveStats.color || COLORS[0];
+    av.textContent = currentUser.charAt(0).toUpperCase();
+  }
+  document.getElementById('userName').textContent = currentUser;
+  document.getElementById('chipCoins').textContent = liveStats.coins || 0;
+  chip.classList.remove('hidden');
+}
+
+async function refreshLiveStats(){
+  if(!currentUser || !dbReady) return;
+  try{
+    const snap = await accountRef(currentUser).get();
+    if(snap.exists) liveStats = snap.data();
+  }catch(e){}
+}
+
+async function renderStats(){
+  await refreshLiveStats();
+  updateUserChip();
+  const stats = liveStats || {};
+  const row = document.getElementById('statsRow');
+  row.innerHTML = `
+    <div class="stat"><div class="sval">🪙 ${stats.coins||0}</div><div class="slbl">Coins</div></div>
+    <div class="stat"><div class="sval">${stats.matchBest||0}</div><div class="slbl">Best Match</div></div>
+    <div class="stat"><div class="sval">${stats.dropBest||0}</div><div class="slbl">Best Drop</div></div>
+  `;
+}
+
+async function recordResult(gameType, score){
+  if(!currentUser || !dbReady) return 0;
+  try{
+    const snap = await accountRef(currentUser).get();
+    const stats = Object.assign({}, snap.exists ? snap.data() : defaultStats(currentUser));
+    stats.gamesPlayed = (stats.gamesPlayed||0) + 1;
+    const coinsEarned = Math.max(5, Math.round(score / 10));
+    stats.coins = (stats.coins||0) + coinsEarned;
+    if(gameType==='match') stats.matchBest = Math.max(stats.matchBest||0, score);
+    if(gameType==='drop') stats.dropBest = Math.max(stats.dropBest||0, score);
+    await accountRef(currentUser).set(stats);
+    liveStats = stats;
+    return coinsEarned;
+  }catch(e){ return 0; }
+}
+
+async function openLeaderboard(){
+  ['menu','matchScreen','dropScreen','endScreen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('leaderboardScreen').classList.remove('hidden');
+  const list = document.getElementById('leaderboardList');
+  list.innerHTML = '<div class="gdesc" style="padding:8px 2px;">Loading…</div>';
+  if(!dbReady){ list.innerHTML = '<div class="gdesc" style="padding:8px 2px;">Not connected right now.</div>'; return; }
+  try{
+    const snap = await db.collection('accounts').orderBy('coins','desc').limit(20).get();
+    list.innerHTML = '';
+    if(snap.empty){ list.innerHTML = '<div class="gdesc" style="padding:8px 2px;">No players yet — be the first!</div>'; return; }
+    let rank = 0;
+    snap.forEach(doc=>{
+      rank++;
+      const s = doc.data();
+      const row = document.createElement('div');
+      row.className = 'game-pick';
+      const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':`#${rank}`;
+      row.innerHTML = `<div class="gtitle">${medal} ${avatarHTML(s)} ${s.name}${s.name===currentUser?' (you)':''}</div>
+        <div class="gdesc">🪙 ${s.coins||0} coins · Best Match ${s.matchBest||0} · Best Drop ${s.dropBest||0}</div>`;
+      list.appendChild(row);
+    });
+  }catch(e){
+    list.innerHTML = '<div class="gdesc" style="padding:8px 2px;">Could not load the leaderboard — ' + (e.message||'') + '</div>';
+  }
+}
+
+// ---- boot: connect to YOUR OWN free Firebase project ----
+// 1. Go to https://console.firebase.google.com -> Add project (free).
+// 2. Build > Firestore Database > Create database > Start in TEST MODE (or add rules, see note below).
+// 3. Project settings (gear icon) > General > scroll to "Your apps" > Add app > Web (</>) > copy the config object it gives you.
+// 4. Paste that config below, replacing the placeholder.
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDccoapCfFY7ssQfDc_bKOAwkmKQYJD9GQ",
+  authDomain: "element-labs-3ea60.firebaseapp.com",
+  projectId: "element-labs-3ea60",
+  storageBucket: "element-labs-3ea60.firebasestorage.app",
+  messagingSenderId: "834454161639",
+  appId: "1:834454161639:web:2156c09e950d8b5dbefa42"
+};
+
+(async function boot(){
+  try{
+    if(FIREBASE_CONFIG.apiKey === "YOUR_API_KEY"){
+      throw new Error("Firebase config not set yet");
+    }
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    dbReady = true;
+  }catch(e){
+    dbReady = false;
+    document.getElementById('loginScreen').innerHTML =
+      '<div class="flaskbig">⚠️</div><h2>Firebase isn\'t set up yet</h2>' +
+      '<p>Open this file, find <code>FIREBASE_CONFIG</code> near the bottom of the script, and paste in your own free Firebase project\'s config (see the comment above it for the 4 steps). Reload once it\'s filled in.</p>';
+    return;
+  }
+  showLogin();
+})();
+
+function pool(){ return range === "first20" ? ELEMENTS.slice(0,20) : ELEMENTS.slice(); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+
+function setRange(r){
+  range = r;
+  document.getElementById('rangeFirst20').classList.toggle('selected', r==='first20');
+  document.getElementById('rangeAll').classList.toggle('selected', r==='all');
+}
+function setGame(g){
+  game = g;
+  document.getElementById('pickMatch').classList.toggle('selected-game', g==='match');
+  document.getElementById('pickDrop').classList.toggle('selected-game', g==='drop');
+  document.getElementById('pickMatch').style.borderColor = g==='match' ? 'var(--teal)' : 'var(--line)';
+  document.getElementById('pickDrop').style.borderColor = g==='drop' ? 'var(--teal)' : 'var(--line)';
+}
+setGame('match');
+
+function toMenu(){
+  ['matchScreen','dropScreen','endScreen','loginScreen','accountListScreen','leaderboardScreen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  if(!currentUser){ showLogin(); return; }
+  document.getElementById('menu').classList.remove('hidden');
+  renderStats();
+  clearDropTimers();
+}
+function launch(){
+  document.getElementById('menu').classList.add('hidden');
+  if(game === 'match') startMatch(); else startDrop();
+}
+function replay(){
+  document.getElementById('endScreen').classList.add('hidden');
+  if(game === 'match') startMatch(); else startDrop();
+}
+
+/* ================= MEMORY MATCH ================= */
+let matchState = {};
+function startMatch(){
+  document.getElementById('dropScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.add('hidden');
+  document.getElementById('matchScreen').classList.remove('hidden');
+
+  const p = shuffle(pool()).slice(0, 8); // 8 pairs = 16 cards
+  let cards = [];
+  p.forEach((el,i)=>{
+    cards.push({id:i, type:'symbol', text:el[1], pairName:el[2]});
+    cards.push({id:i, type:'name', text:el[2], pairName:el[2]});
+  });
+  cards = shuffle(cards);
+
+  matchState = {cards, flipped:[], matched:new Set(), moves:0, found:0, total:p.length, busy:false};
+
+  document.getElementById('matchMoves').textContent = 0;
+  document.getElementById('matchFound').textContent = 0;
+  document.getElementById('matchTotal').textContent = p.length;
+
+  const grid = document.getElementById('matchGrid');
+  grid.innerHTML = '';
+  cards.forEach((c, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'card ' + c.type;
+    div.innerHTML = `<div class="face">${c.text}</div><div class="back">🔬</div>`;
+    div.onclick = () => flipCard(idx, div);
+    grid.appendChild(div);
+  });
+}
+
+function flipCard(idx, el){
+  const s = matchState;
+  if(s.busy || s.matched.has(idx) || s.flipped.some(f=>f.idx===idx)) return;
+  el.classList.add('flipped');
+  s.flipped.push({idx, el});
+
+  if(s.flipped.length === 2){
+    s.busy = true;
+    s.moves++;
+    document.getElementById('matchMoves').textContent = s.moves;
+    const [a,b] = s.flipped;
+    const ca = s.cards[a.idx], cb = s.cards[b.idx];
+    if(ca.id === cb.id){
+      setTimeout(()=>{
+        a.el.classList.add('matched'); b.el.classList.add('matched');
+        s.matched.add(a.idx); s.matched.add(b.idx);
+        s.found++;
+        document.getElementById('matchFound').textContent = s.found;
+        s.flipped = []; s.busy = false;
+        if(s.found === s.total) setTimeout(()=>endMatch(), 500);
+      }, 350);
+    } else {
+      a.el.classList.add('shake'); b.el.classList.add('shake');
+      setTimeout(()=>{
+        a.el.classList.remove('flipped','shake'); b.el.classList.remove('flipped','shake');
+        s.flipped = []; s.busy = false;
+      }, 700);
+    }
+  }
+}
+
+function endMatch(){
+  document.getElementById('matchScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.remove('hidden');
+  const s = matchState;
+  const perfect = s.total * 1.4;
+  const scoreVal = Math.max(100, Math.round(2000 / s.moves * s.total / 8));
+  document.getElementById('endEmoji').textContent = s.moves <= perfect ? '🏆' : '🎉';
+  document.getElementById('endTitle').textContent = s.moves <= perfect ? 'Excellent memory!' : 'All matched!';
+  document.getElementById('endScore').textContent = scoreVal;
+  document.getElementById('endSub').textContent = `You matched all ${s.total} pairs in ${s.moves} moves.`;
+  recordResult('match', scoreVal).then(coins=>{
+    if(coins) document.getElementById('endCoins').textContent = `+${coins} 🪙 coins earned`;
+  });
+}
+
+/* ================= SYMBOL DROP ================= */
+let dropState = {};
+let dropTimers = [];
+function clearDropTimers(){ dropTimers.forEach(t=>clearInterval(t) || clearTimeout(t)); dropTimers = []; }
+
+function startDrop(){
+  document.getElementById('matchScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.add('hidden');
+  document.getElementById('dropScreen').classList.remove('hidden');
+  clearDropTimers();
+
+  dropState = {lives:3, score:0, queue: shuffle(pool()), qi:0, active:null, speed: range==='first20' ? 4200 : 5200};
+  document.getElementById('dropScore').textContent = 0;
+  document.getElementById('dropLives').textContent = '❤️❤️❤️';
+  document.getElementById('dropArena').querySelectorAll('.falling').forEach(f=>f.remove());
+
+  spawnNext();
+}
+
+function spawnNext(){
+  const s = dropState;
+  if(s.lives <= 0) return endDrop();
+  if(s.qi >= s.queue.length) s.queue = shuffle(pool()), s.qi = 0;
+
+  const el = s.queue[s.qi++];
+  const arena = document.getElementById('dropArena');
+  const arenaW = arena.clientWidth;
+
+  const node = document.createElement('div');
+  node.className = 'falling';
+  node.textContent = el[1];
+  node.style.left = Math.max(10, Math.random() * (arenaW - 90)) + 'px';
+  arena.appendChild(node);
+
+  s.active = {el, node, resolved:false};
+
+  // options
+  const wrongPool = pool().filter(e=>e[2] !== el[2]);
+  const wrongs = shuffle(wrongPool).slice(0,3).map(e=>e[2]);
+  const opts = shuffle([el[2], ...wrongs]);
+  const optDiv = document.getElementById('dropOptions');
+  optDiv.innerHTML = '';
+  opts.forEach(name=>{
+    const b = document.createElement('button');
+    b.className = 'dopt';
+    b.textContent = name;
+    b.onclick = () => answerDrop(name === el[2], b, name, el[2]);
+    optDiv.appendChild(b);
+  });
+
+  // animate falling
+  const duration = s.speed;
+  const arenaH = arena.clientHeight;
+  const start = performance.now();
+  function step(now){
+    if(s.active?.resolved || !s.active || s.active.node !== node) return;
+    const t = Math.min(1, (now - start) / duration);
+    node.style.top = (t * (arenaH - 60) - 50) + 'px';
+    if(t >= 1){
+      missDrop();
+    } else {
+      requestAnimationFrame(step);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function missDrop(){
+  const s = dropState;
+  if(!s.active || s.active.resolved) return;
+  s.active.resolved = true;
+  s.active.node.remove();
+  s.lives--;
+  document.getElementById('dropLives').textContent = '❤️'.repeat(Math.max(s.lives,0));
+  if(s.lives <= 0){ endDrop(); return; }
+  setTimeout(spawnNext, 300);
+}
+
+function answerDrop(correct, btnEl, chosen, correctName){
+  const s = dropState;
+  if(!s.active || s.active.resolved) return;
+  s.active.resolved = true;
+
+  const allOpts = document.querySelectorAll('.dopt');
+  allOpts.forEach(b=>b.onclick=null);
+
+  if(correct){
+    btnEl.classList.add('correct');
+    s.score += 10;
+    s.active.node.style.background = '#173a2a';
+    s.active.node.style.borderColor = 'var(--good)';
+  } else {
+    btnEl.classList.add('wrong');
+    allOpts.forEach(b=>{ if(b.textContent === correctName) b.classList.add('correct'); });
+    s.lives--;
+    document.getElementById('dropLives').textContent = '❤️'.repeat(Math.max(s.lives,0));
+  }
+  document.getElementById('dropScore').textContent = s.score;
+  setTimeout(()=>{
+    s.active.node.remove();
+    if(s.lives <= 0) endDrop(); else spawnNext();
+  }, 450);
+}
+
+function endDrop(){
+  document.getElementById('dropScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.remove('hidden');
+  const s = dropState;
+  document.getElementById('endEmoji').textContent = s.score >= 100 ? '🏆' : '☄️';
+  document.getElementById('endTitle').textContent = 'Run complete!';
+  document.getElementById('endScore').textContent = s.score;
+  document.getElementById('endSub').textContent = `Symbol Drop • ${range === 'first20' ? 'First 20' : 'All Elements'} mode`;
+  recordResult('drop', s.score).then(coins=>{
+    if(coins) document.getElementById('endCoins').textContent = `+${coins} 🪙 coins earned`;
+  });
+}
+</script>
+</body>
+</html>
+
+</body></html>
